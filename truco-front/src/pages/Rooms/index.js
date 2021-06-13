@@ -15,6 +15,11 @@ function Rooms() {
     Truco.criarSala(sala);
   }
 
+  function entrarEmSala(keySala, elm) {
+    const senha = elm.target.parentElement.parentElement.children[4].children[0].value;
+    Truco.entrarEmSala(keySala, senha)
+  }
+
   function renderSalas() {
     setSalas(
       Truco.salas.map((item, index) => {
@@ -27,7 +32,7 @@ function Rooms() {
             <Td><Input2 width="50%" /></Td>
             <Td>{item.qtd}/4</Td>
             <Td>
-              <BtnAct>Entrar</BtnAct>
+              <BtnAct onClick={(e) => entrarEmSala(item.keySala, e)}>Entrar</BtnAct>
             </Td>
           </Tr>
         );
@@ -41,8 +46,8 @@ function Rooms() {
         return (
           <Tr key={index}>
             <Td>{item.nickname}</Td>
-            <Td>{item.lastSync}</Td>
-            <Td>{item.connectedAt}</Td>
+            <Td>{item.status}</Td>
+            <Td>-</Td>
             <Td>
               <BtnAct>Entrar</BtnAct>
             </Td>
@@ -96,7 +101,8 @@ function Rooms() {
               <Td>
                 <BtnAct onClick={criarSala}>Criar Sala</BtnAct>
                 <BtnAct onClick={() => console.log(Truco.salas)}>ls Sala</BtnAct>
-                <BtnAct onClick={() => console.log(Truco.clients)}>ls Client</BtnAct>
+                <BtnAct onClick={() => Truco.listarClients()}>ls Client</BtnAct>
+                <BtnAct onClick={() => Truco.ws.close()}>close ws</BtnAct>
               </Td>
             </Tr>
             <Tr>

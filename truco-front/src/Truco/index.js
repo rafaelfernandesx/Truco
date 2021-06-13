@@ -24,6 +24,11 @@ class Truco {
                 }
             }
 
+            Truco.ws.onclose = function (evt) {
+                Truco.connected = false;
+                console.log('Client notified socket has closed', evt);
+            }
+
             Truco.ws.onerror = function(evt) {
                 Truco.connected = false;
                 console.log('ws error', evt.data)
@@ -55,6 +60,8 @@ class Truco {
                         console.log('ls clients', Truco.clients);
                         Truco.renderClients();
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -66,8 +73,6 @@ class Truco {
             'type': 'bindClientName',
             'data': {
                 'nickname': nickname,
-                'connectedAt': sessionStorage.connectedAt,
-                'lastSync': Date.now() / 1000,
                 'clientID': sessionStorage.clientID
             }
         }
@@ -75,8 +80,16 @@ class Truco {
     }
 
 
-    static entrarEmSala(sala) {
+    static entrarEmSala(keySala, senha) {
+        const data = {
+            'type': 'entrarEmSala',
+            'data': {
+                'keySala': keySala,
+                'senha': senha
+            }
+        }
 
+        Truco.ws.send(JSON.stringify(data));
     }
 
     static criarSala(sala) {

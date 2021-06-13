@@ -71,9 +71,12 @@ while (true) {
             socket_getpeername($changed_socket, $ip);
             unset($clients[$found_socket]);
 
-            //notify all users about disconnected connection
-            $response = mask(json_encode(array('type' => 'system', 'message' => $ip . ' disconnected')));
-            send_message($response);
+            foreach ($clientList as $client) {
+                if ($client->clientSocket == $changed_socket) {
+                    $client->status = 'Disconnected';
+                }
+            }
+            listarClients();
         }
     }
 }
@@ -169,6 +172,9 @@ function receiveMessage($msg, $client_socket) {
             case 'listarSalas':
                 listarSalas($client_socket);
                 break;
+            case 'entrarEmSala':
+                entrarEmSala($msg->data, $client_socket);
+                break;
             case 'listarClients':
                 listarClients();
                 break;
@@ -205,23 +211,40 @@ function listarSalas($client) {
     send_message($listaSalas, $client); //send data
 }
 
+function entrarEmSala($data, $client) {
+    global $salas;
+    $listaSalas = [];
+    if (!in_array($client, $salas[$data->keySala]['clients'])) {
+        $salas[$data->keySala]['clients'][] = $client;
+        $salas[$data->keySala]['data']->qtd += 1;
+        foreach ($salas as $sala) {
+            $listaSalas[] = $sala['data'];
+        }
+        $listaSalas = mask(json_encode(['type' => 'listaSalas', 'data' => $listaSalas]));
+        send_message($listaSalas); //send data
+    }else{
+        $listaSalas = mask(json_encode(['type' => 'erroSala', 'data' => 'Você ja está na sala']));
+        send_message($listaSalas, $client); //send data
+    }
+}
+
 
 function listarClients() {
+    global $clients;
     global $clientList;
     $listaClients = [];
     foreach ($clientList as $key => $value) {
-        echo $value->lastSync . "\n";
-        echo date('Y-m-d H:i:s', $value->lastSync);
-        $value->lastSync = date('Y-m-d H:i:s', $value->lastSync);
         $listaClients[] = $value;
     }
 
-    $listaClients = mask(json_encode(['type' => 'listaClients', 'data' => $listaClients]));
+    $listaClients = mask(json_encode(['type' => 'listaClients', 'data' => $listaClients, 'cliSck' => $clients]));
     send_message($listaClients); //send data
 }
 
 function bindClientName($clientData, $client) {
     global $clientList;
     $clientData->clientSocket = $client;
+    $clientData->lastSync = time();
+    $clientData->status = 'Disponivel';
     $clientList[$clientData->clientID] = $clientData;
 }
