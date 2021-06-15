@@ -1,9 +1,12 @@
 <?php
 
 class PiraSocket {
+    private $connectHandler;
     private $disconnectHandler;
     private $messageHandler;
     private $errorHandler;
+
+    private $clients;
 
     function __construct()
     {
@@ -39,23 +42,23 @@ class PiraSocket {
         socket_write($client_conn, $upgrade, strlen($upgrade));
     }
 
-    //$this->un$this->mask incoming framed message
+    //$this->mask incoming framed message
     function unmask($text)
     {
         $length = ord($text[1]) & 127;
         if ($length == 126) {
-            $$this->masks = substr($text, 4, 4);
+            $masks = substr($text, 4, 4);
             $data = substr($text, 8);
         } elseif ($length == 127) {
-            $$this->masks = substr($text, 10, 4);
+            $masks = substr($text, 10, 4);
             $data = substr($text, 14);
         } else {
-            $$this->masks = substr($text, 2, 4);
+            $masks = substr($text, 2, 4);
             $data = substr($text, 6);
         }
         $text = "";
         for ($i = 0; $i < strlen($data); ++$i) {
-            $text .= $data[$i] ^ $$this->masks[$i % 4];
+            $text .= $data[$i] ^ $masks[$i % 4];
         }
         return $text;
     }
@@ -78,15 +81,20 @@ class PiraSocket {
 
     function sendMessage($msg, $to = null)
     {
-        global $clients;
+        $msg = $this->mask($msg);
         if ($to == null) { //se for null envia pra todos cliente
-            foreach ($clients as $changed_socket) {
+            foreach ($this->clients as $changed_socket) {
                 @socket_write($changed_socket, $msg, strlen($msg));
             }
         }else{
             @socket_write($to, $msg, strlen($msg));
         }
+
         return true;
+    }
+
+    function onConnect(Closure $handler) {
+        $this->connectHandler = $handler;
     }
 
     function onDisconnect(Closure $handler) {
@@ -101,21 +109,22 @@ class PiraSocket {
         $this->messageHandler = $handler;
     }
 
-    // function setResHandler(Closure $handler) {
-    //     $this->handler = $handler;
-    // }
+    function getClients() {
+        return $this->clients;
+    }
+
 
     function listen(String $host, int $port, $socket) {
         $null = NULL;
         // Create & add listning socket to the list
-        $clients = array($socket);
+        $this->clients = array($socket);
 
         $clientList = [];
 
         // Start endless loop, so that our script doesn't stop
         while (true) {
             // Manage multipal connections
-            $changed = $clients;
+            $changed = $this->clients;
 
             // Returns the socket resources in $changed array
             socket_select($changed, $null, $null, 0, 10);
@@ -123,14 +132,15 @@ class PiraSocket {
             // Check for new socket. Verifica se houve uma nova conexão e adiciona na lista de clientes conectados
             if (in_array($socket, $changed)) {
                 $socket_new = socket_accept($socket); // Accpet new socket
-                $clients[] = $socket_new; // Add socket to client array
+                $this->clients[] = $socket_new; // Add socket to client array
 
                 $header = socket_read($socket_new, 1024); // Read data sent by the socket
                 $this->performHandshaking($header, $socket_new, $host, $port); // Perform websocket handshake
 
                 socket_getpeername($socket_new, $ip); // Get ip address of connected socket
-                $response = $this->mask(json_encode(array('type' => 'system', 'message' => $ip . ' connected'))); // Prepare json data
-                $this->sendMessage($response); // Notify all users about new connection
+                $message = json_encode(array('type' => 'system', 'message' => $ip . ' connected'));
+                $connectHandler = $this->connectHandler;
+                $connectHandler($message, $socket_new);// Notify all users about new connection
 
                 // Make room for new socket
                 $found_socket = array_search($socket, $changed);
@@ -151,17 +161,14 @@ class PiraSocket {
 
                 $buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
                 if ($buf === false) { // check disconnected client
-                    // remove client for $clients array
-                    $found_socket = array_search($changed_socket, $clients);
+                    // remove client for $this->clients array
+                    $found_socket = array_search($changed_socket, $this->clients);
                     socket_getpeername($changed_socket, $ip);
-                    unset($clients[$found_socket]);
+                    unset($this->clients[$found_socket]);
 
-                    // if ($client->clientSocket == $changed_socket) {
-                    //     $client->status = 'Disconnected';
-                    // }
-                    // listarClients();
+                    $message = json_encode(array('type' => 'system', 'message' => $ip . ' disconnected'));
                     $disconnectHandler = $this->disconnectHandler;
-                    $disconnectHandler($changed_socket);
+                    $disconnectHandler($message, $changed_socket);
                 }
             }
         }

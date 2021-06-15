@@ -6,14 +6,36 @@ require_once './PiraSocket.php';
 
 $host = 'localhost';
 $port = '1234';
-$null = NULL;
 
-$messageHandler = function () {
-
-};
 
 $socket = new PiraSocket();
-// $socket->
+$socket->onDisconnect(function ($message, $client) use ($socket) {
+    $socket->sendMessage($message);
+});
+
+$socket->onConnect(function ($message, $client) use ($socket) {
+    $socket->sendMessage($message);
+});
+
+$socket->onMessage(function ($message, $client) use ($socket) {
+    if (strlen($message) > 7) {
+        $message = json_decode($message);
+        switch ($message->type) {
+            case 'bindClientName':
+                $response = json_encode('bindClientFeito');
+                $socket->sendMessage($response);
+                break;
+            case 'listarClients':
+                $clients = $socket->getClients();
+                $response = [
+                    'type' => 'listaClients',
+                    'data' => $clients
+                ];
+                $socket->sendMessage(json_encode($response), $client);
+                break;
+        }
+    }
+});
 // $truco = new Truco();
 
 
