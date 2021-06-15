@@ -29,7 +29,7 @@ $socket->onMessage(function ($message, $client) use ($socket) {
                 $clients = $socket->getClients();
                 $response = [
                     'type' => 'listaClients',
-                    'data' => $clients
+                    'data' => array_shift($clients) //remove o primeiro elemento do array que é o servidor
                 ];
                 $socket->sendMessage(json_encode($response), $client);
                 break;

@@ -7,17 +7,7 @@ class PiraSocket {
     private $errorHandler;
 
     private $clients;
-
-    function __construct()
-    {
-        $socket = null;
-        // TCP/IP sream
-        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        // Reuseable port
-        socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
-
-        $this->socket = $socket;
-    }
+    private $socket = null;
 
     private function performHandshaking($receved_header, $client_conn, $host, $port)
     {
@@ -114,12 +104,10 @@ class PiraSocket {
     }
 
 
-    function listen(String $host, int $port, $socket) {
+    function listen(String $host, int $port) {
         $null = NULL;
         // Create & add listning socket to the list
-        $this->clients = array($socket);
-
-        $clientList = [];
+        $this->clients = array($this->socket);
 
         // Start endless loop, so that our script doesn't stop
         while (true) {
@@ -130,8 +118,8 @@ class PiraSocket {
             socket_select($changed, $null, $null, 0, 10);
 
             // Check for new socket. Verifica se houve uma nova conexão e adiciona na lista de clientes conectados
-            if (in_array($socket, $changed)) {
-                $socket_new = socket_accept($socket); // Accpet new socket
+            if (in_array($this->socket, $changed)) {
+                $socket_new = socket_accept($this->socket); // Accpet new socket
                 $this->clients[] = $socket_new; // Add socket to client array
 
                 $header = socket_read($socket_new, 1024); // Read data sent by the socket
@@ -143,7 +131,7 @@ class PiraSocket {
                 $connectHandler($message, $socket_new);// Notify all users about new connection
 
                 // Make room for new socket
-                $found_socket = array_search($socket, $changed);
+                $found_socket = array_search($this->socket, $changed);
                 unset($changed[$found_socket]);
             }
 
@@ -175,14 +163,17 @@ class PiraSocket {
     }
 
     function run(String $host, int $port) {
-        $socket = $this->socket;
+        // TCP/IP sream
+        $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        // Reuseable port
+        socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
         // Bind socket to specified host
-        socket_bind($socket, 0, $port);
+        socket_bind($this->socket, 0, $port);
 
         // Listen to port
-        socket_listen($socket);
+        socket_listen($this->socket);
 
-        $this->listen($host, $port, $socket);
+        $this->listen($host, $port);
     }
 }
