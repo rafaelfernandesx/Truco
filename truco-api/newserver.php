@@ -16,7 +16,7 @@ socket_bind($socket, 0, $port);
 socket_listen($socket);
 
 //create & add listning socket to the list
-$clients = array($socket);
+$clients[] = $socket;
 
 $clientList = [];
 
@@ -213,6 +213,7 @@ function listarSalas($client) {
 
 function entrarEmSala($data, $client) {
     global $salas;
+    global $clientList;
     $listaSalas = [];
     if (!in_array($client, $salas[$data->keySala]['clients'])) {
         $salas[$data->keySala]['clients'][] = $client;
@@ -222,6 +223,13 @@ function entrarEmSala($data, $client) {
         }
         $listaSalas = mask(json_encode(['type' => 'listaSalas', 'data' => $listaSalas]));
         send_message($listaSalas); //send data
+
+        foreach ($clientList as $key => $value) {
+            if ($value->clientSocket == $client) {
+                $value->status = 'Em sala';
+            }
+        }
+        listarClients();
     }else{
         $listaSalas = mask(json_encode(['type' => 'erroSala', 'data' => 'Você ja está na sala']));
         send_message($listaSalas, $client); //send data
