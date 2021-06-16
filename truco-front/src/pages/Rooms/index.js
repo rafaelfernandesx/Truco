@@ -80,6 +80,7 @@ function Rooms() {
               <h2>HOME</h2>
             </Col>
             <Col flex="1" justifyContent="center">
+              <Link to="/play">Play</Link>
               <Link to="/logout">Sair</Link>
             </Col>
           </Row>

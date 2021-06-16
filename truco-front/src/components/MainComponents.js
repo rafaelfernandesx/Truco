@@ -4,7 +4,7 @@ import base from './systemBase';
 console.log('SystemBase', base);
 export const PageContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: ${(props) => props.flexDirection || 'row'};
   width: 100vw;
   height: 100vh;
   background-color: #FFF;
@@ -111,6 +111,7 @@ export const Row = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  ${(props) => props.padding ? 'padding: ' + props.padding : ''};
   margin          : ${(props) => props.margin || '0px'};
   height          : ${(props) => props.height || 'auto'};
   flex-direction  : ${(props) => props.flexDirection || 'row'};
