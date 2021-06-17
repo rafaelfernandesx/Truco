@@ -273,11 +273,11 @@ export const Panel = styled.div`
   ${(props) => props.ml ? 'margin-left: '+props.ml : ''};
   border-radius: 12px;
   height: auto;
-  flex-direction: row;
+  flex-direction: ${(props) => props.flexDirection || 'row'};
   color: #000;
   background-color: #FFF;
-  justify-content: flex-start;
-  align-items: center;
+  justify-content : ${(props) => props.justifyContent || 'flex-start'};
+  align-items     : ${(props) => props.alignItems || 'center'};
   box-shadow: 0 2.88px 4.8px rgba(166,166,185,.5),0 5.21px 48px rgba(122,123,151,.3) !important;
 `;
 

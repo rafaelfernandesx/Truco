@@ -3,8 +3,9 @@ import React from 'react';
 import {
   Row, Col, Panel, PageContainer
 } from '../../components/MainComponents';
-import Truco from '../../Truco';
+import Carta from '../../components/Carta';
 
+import Truco from '../../Truco';
 
 function Play() {
 
@@ -24,47 +25,43 @@ function Play() {
         </Panel>
       </Row>
 
-      <Row flexDirection="column" height="100%">
-        <Col flex="1">
-          <Row>
-            <Col flex="1" padding="8px"></Col>
-            <Col flex="3" padding="8px">
-              <Panel>
-                Play
-              </Panel>
-            </Col>
-            <Col flex="1" padding="8px"></Col>
-          </Row>
+      <Row flexDirection="row" height="100%">
+        <Col flex="1" padding="8px">
+          <Panel flexDirection="column">
+            <Carta v/>
+            <Carta v/>
+            <Carta v/>
+          </Panel>
         </Col>
         <Col flex="3">
-          <Row height="100%">
+          <Row height="100%" flexDirection="column">
             <Col flex="1" padding="8px">
               <Panel>
-                Play
+                <Carta />
+                <Carta />
+                <Carta />
               </Panel>
             </Col>
             <Col flex="3" padding="8px">
               <Panel>
-                Play
+                Center
               </Panel>
             </Col>
             <Col flex="1" padding="8px">
               <Panel>
-                Play
+                <Carta />
+                <Carta />
+                <Carta />
               </Panel>
             </Col>
           </Row>
         </Col>
         <Col flex="1">
-          <Row>
-            <Col flex="1" padding="8px"></Col>
-            <Col flex="3" padding="8px">
-              <Panel>
-                Play
-              </Panel>
-            </Col>
-            <Col flex="1" padding="8px"></Col>
-          </Row>
+          <Panel flexDirection="column">
+            <Carta carta={1}/>
+            <Carta carta={52}/>
+            <Carta carta={52}/>
+          </Panel>
         </Col>
       </Row>
 
