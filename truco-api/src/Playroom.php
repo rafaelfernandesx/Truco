@@ -2,7 +2,7 @@
 
 require_once ('./Truco.php');
 
-class Palyroom {
+class Playroom {
     private Array $clients;
     private String $name;
     private String $password;
@@ -17,7 +17,7 @@ class Palyroom {
     private function validatePassword(String $password) {
         return $this->password === $password;
     }
-    
+
     function getName() {
         return $this->name;
     }

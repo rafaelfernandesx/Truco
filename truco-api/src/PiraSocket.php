@@ -6,10 +6,10 @@ class PiraSocket {
     private $messageHandler;
     private $errorHandler;
 
-    private $clients;
-    private $socket = null;
+    private Array $clients;
+    private Socket $socket;
 
-    private function performHandshaking($receved_header, $client_conn, $host, $port)
+    private function performHandshaking(String $receved_header, Socket $client_conn, String $host, int $port)
     {
         $headers = array();
         $lines = preg_split("/\r\n/", $receved_header);
@@ -33,7 +33,7 @@ class PiraSocket {
     }
 
     //$this->mask incoming framed message
-    function unmask($text)
+    function unmask(String $text)
     {
         $length = ord($text[1]) & 127;
         if ($length == 126) {
@@ -54,7 +54,7 @@ class PiraSocket {
     }
 
     //Encode message for transfer to client.
-    function mask($text)
+    function mask(String $text)
     {
         $b1 = 0x80 | (0x1 & 0x0f);
         $length = strlen($text);
@@ -69,7 +69,7 @@ class PiraSocket {
     }
 
 
-    function sendMessage($msg, $to = null)
+    function sendMessage(String $msg, Socket $to = null)
     {
         $msg = $this->mask($msg);
         if ($to == null) { //se for null envia pra todos cliente
@@ -128,7 +128,7 @@ class PiraSocket {
                 socket_getpeername($socket_new, $ip); // Get ip address of connected socket
                 $message = json_encode(array('type' => 'system', 'message' => $ip . ' connected'));
                 $connectHandler = $this->connectHandler;
-                $connectHandler($message, $socket_new);// Notify all users about new connection
+                $connectHandler($message);// Notify all users about new connection
 
                 // Make room for new socket
                 $found_socket = array_search($this->socket, $changed);

@@ -2,13 +2,21 @@
 
 class Client {
     private bool $isInPlayRoom;
-    private Int $id;
+    private Int $socketId;
     private String $name;
+    private Playroom $playroom;
 
-    function __construct(Int $id, String $name)
+    function __construct(Int $socketId, String $name)
     {
-        $this->id = $id;
+        $this->socketId = $socketId;
         $this->name = $name;
     }
 
+    public function setRoom(Playroom $playroom): void{
+        $this->playroom = $playroom;
+    }
+
+    public function getRoom(): Playroom {
+        return $this->playroom;
+    }
 }
