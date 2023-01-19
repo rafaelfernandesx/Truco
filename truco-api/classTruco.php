@@ -9,7 +9,10 @@ class Truco
     /**
      * @var array<int, Carta>
      */
-    public array $cartas;
+    public $cartas;
+    /**
+     * @var array<int, Jogador>
+     */
     public array $jogadores;
     public Carta $cartaVirada;
     public $historicoRodadas;
@@ -38,44 +41,44 @@ class Truco
 
         switch ($this->cartaVirada->valor) {
             case 7:
-                foreach ($this->baralho as $key => $carta) {
-                    if ($carta->valor == 11) {
-                        $carta->valorDaManilha = $this->adicionarValorNaManilha($carta);
+                foreach ($this->baralho as $key => $value) {
+                    if ($this->baralho[$key]->valor == 11) {
+                        $this->baralho[$key]->manilha = $this->adicionarValorNaManilha($this->baralho[$key]);
                     }
                 }
                 break;
             case 13:
-                foreach ($this->baralho as $key => $carta) {
-                    if ($carta->valor == 100) {
-                        $carta->valorDaManilha = $this->adicionarValorNaManilha($carta);
+                foreach ($this->baralho as $key => $value) {
+                    if ($this->baralho[$key]->valor == 100) {
+                        $this->baralho[$key]->manilha = $this->adicionarValorNaManilha($this->baralho[$key]);
                     }
                 }
                 break;
             case 100:
-                foreach ($this->baralho as $key => $carta) {
-                    if ($carta->valor == 200) {
-                        $carta->valorDaManilha = $this->adicionarValorNaManilha($this->baralho[$key]);
+                foreach ($this->baralho as $key => $value) {
+                    if ($this->baralho[$key]->valor == 200) {
+                        $this->baralho[$key]->manilha = $this->adicionarValorNaManilha($this->baralho[$key]);
                     }
                 }
                 break;
             case 200:
-                foreach ($this->baralho as $key => $carta) {
-                    if ($carta->valor == 300) {
-                        $carta->valorDaManilha = $this->adicionarValorNaManilha($carta);
+                foreach ($this->baralho as $key => $value) {
+                    if ($this->baralho[$key]->valor == 300) {
+                        $this->baralho[$key]->manilha = $this->adicionarValorNaManilha($this->baralho[$key]);
                     }
                 }
                 break;
             case 300:
-                foreach ($this->baralho as $key => $carta) {
-                    if ($carta->valor == 4) {
-                        $carta->valorDaManilha = $this->adicionarValorNaManilha($carta);
+                foreach ($this->baralho as $key => $value) {
+                    if ($this->baralho[$key]->valor == 4) {
+                        $this->baralho[$key]->manilha = $this->adicionarValorNaManilha($this->baralho[$key]);
                     }
                 }
                 break;
             default:
-                foreach ($this->baralho as $key => $carta) {
-                    if ($carta->valor == $this->cartaVirada->valor + 1) {
-                        $carta->valorDaManilha = $this->adicionarValorNaManilha($carta);
+                foreach ($this->baralho as $key => $value) {
+                    if ($this->baralho[$key]->valor == $this->cartaVirada->valor + 1) {
+                        $this->baralho[$key]->manilha = $this->adicionarValorNaManilha($this->baralho[$key]);
                     }
                 }
                 break;
@@ -83,7 +86,7 @@ class Truco
         return $this;
     }
 
-    public function adicionarValorNaManilha(Carta $carta):int
+    public function adicionarValorNaManilha(Carta $carta)
     {
         switch ($carta->naipe) {
             case '♣':
@@ -99,72 +102,68 @@ class Truco
                 $carta->valor += 1000;
                 return $carta->valor;
         }
-        throw new Exception('Carta sem naipe!');
+        throw new Exception("Erro, carta sem naipe", 1);
     }
 
-    public function darCartas(): Truco
+    public function darCartas()
     {
         for ($i = 0; $i < count($this->jogadores); $i++) {
-            $this->jogadores[$i]['cartas'][] = array_shift($this->baralho);
-            $this->jogadores[$i]['cartas'][] = array_shift($this->baralho);
-            $this->jogadores[$i]['cartas'][] = array_shift($this->baralho);
+            $this->jogadores[$i]->cartas[] = array_shift($this->baralho);
+            $this->jogadores[$i]->cartas[] = array_shift($this->baralho);
+            $this->jogadores[$i]->cartas[] = array_shift($this->baralho);
         }
         return $this;
     }
 
-    public function jogarCarta(int $jogador, int $carta): Truco
+    public function jogarCarta(int $jogador, int $carta)
     {
         echo "Selecione uma carta:\n";
-        print_r($this->jogadores[$jogador]['cartas']);
-        // $carta = readline("Index da carta: ") || $carta;
+        print_r($this->jogadores[$jogador]->cartas);
         $this->rodadaAtual[] = [
-            'carta' => $this->jogadores[$jogador]['cartas'][$carta],
-            'jogador' => $this->jogadores[$jogador]['nome'],
-            'jogadorkey' => $this->jogadores[$jogador]['key']
+            'carta' => $this->jogadores[$jogador]->cartas[$carta],
+            'jogador' => $this->jogadores[$jogador]->nome,
+            'jogadorkey' => $this->jogadores[$jogador]->key
         ];
 
-        if (!empty($this->jogadores[$jogador]['cartas'][$carta]->manilha)) {
-            if ($this->jogadores[$jogador]['cartas'][$carta]->naipe == '♣') {
-                echo 'O jogador: ' . $this->jogadores[$jogador]['nome'] . ' jogou a carta xablau ' . $this->jogadores[$jogador]['cartas'][$carta]->naipe . '<br>';
-            } else {
-                echo 'O jogador: ' . $this->jogadores[$jogador]['nome'] . ' jogou a carta: ' . $this->jogadores[$jogador]['cartas'][$carta]->valor . ' de ' . $this->jogadores[$jogador]['cartas'][$carta]->naipe . ' manilha<br>';
+        if (!empty($this->jogadores[$jogador]->cartas[$carta]->manilha)) {
+            if ($this->jogadores[$jogador]->cartas[$carta]->naipe == '♣') {
+                echo 'O jogador: ' . $this->jogadores[$jogador]->nome . ' jogou a carta xablau ' . $this->jogadores[$jogador]->cartas[$carta]->naipe . '<br>';
+            }else{
+                echo 'O jogador: ' . $this->jogadores[$jogador]->nome . ' jogou a carta: ' . $this->jogadores[$jogador]->cartas[$carta]->valor . ' de ' . $this->jogadores[$jogador]->cartas[$carta]->naipe .' manilha<br>';
             }
-        } else {
-            echo 'O jogador: ' . $this->jogadores[$jogador]['nome'] . ' jogou a carta: ' . $this->jogadores[$jogador]['cartas'][$carta]->valor . ' de ' . $this->jogadores[$jogador]['cartas'][$carta]->naipe . ' <br>';
+        }else{
+            echo 'O jogador: ' . $this->jogadores[$jogador]->nome . ' jogou a carta: ' . $this->jogadores[$jogador]->cartas[$carta]->valor . ' de ' . $this->jogadores[$jogador]->cartas[$carta]->naipe .' <br>';
         }
 
-        unset($this->jogadores[$jogador]['cartas'][$carta]);
+        unset($this->jogadores[$jogador]->cartas[$carta]);
         $this->verificarGanhadorRodadaAtual();
 
         return $this;
     }
 
-    public function verificarGanhadorRodadaAtual(): Truco
+    public function verificarGanhadorRodadaAtual()
     {
         if (count($this->rodadaAtual) == 4) {
-                /**
-                 * @var array<string, Carta>
-                 */
-            $cartaMaior = ['carta' =>new Carta(naipe: 'none', valor: 0, carta: 'none', valorDaManilha: 0, cartaVirada: false)];
+            $cartaMaior = ['carta' => new Carta(naipe: '', valor: 0, carta: '', manilha: 0, cartaVirada:false)];
 
             foreach ($this->rodadaAtual as $key => $value) {
-                if (!empty($this->rodadaAtual[$key]['carta']->valorDaManilha)) {
-                    if (!empty($cartaMaior['carta']->valorDaManilha)) {
-                        if ($this->rodadaAtual[$key]['carta']->valorDaManilha > $cartaMaior['carta']->valorDaManilha) {
+                if (!empty($this->rodadaAtual[$key]['carta']->manilha)) {
+                    if (!empty($cartaMaior['carta']->manilha)) {
+                        if ($this->rodadaAtual[$key]['carta']->manilha > $cartaMaior['carta']->manilha) {
                             $cartaMaior = $this->rodadaAtual[$key];
                         }
                     } else {
-                        if ($this->rodadaAtual[$key]['carta']->valorDaManilha > $cartaMaior['carta']->valor) {
+                        if ($this->rodadaAtual[$key]['carta']->manilha > $cartaMaior['carta']->valor) {
                             $cartaMaior = $this->rodadaAtual[$key];
                         }
                     }
                 } else {
-                    if (!empty($cartaMaior['carta']->valorDaManilha)) {
-                        if ($this->rodadaAtual[$key]['carta']->valorDaManilha > $cartaMaior['carta']->valorDaManilha) {
+                    if (!empty($cartaMaior['carta']->manilha)) {
+                        if ($this->rodadaAtual[$key]['carta']->valor > $cartaMaior['carta']->manilha) {
                             $cartaMaior = $this->rodadaAtual[$key];
                         }
                     } else {
-                        if ($this->rodadaAtual[$key]['carta']->valorDaManilha > $cartaMaior['carta']->valor) {
+                        if ($this->rodadaAtual[$key]['carta']->valor > $cartaMaior['carta']->valor) {
                             $cartaMaior = $this->rodadaAtual[$key];
                         }
                     }
@@ -173,7 +172,7 @@ class Truco
 
             $empate = 0;
             foreach ($this->rodadaAtual as $rodada) {
-                if (empty($cartaMaior['carta']->valorDaManilha)) {
+                if (empty($cartaMaior['carta']->manilha)) {
                     if ($cartaMaior['carta']->valor == $rodada['carta']->valor) {
                         $empate++;
                     }
@@ -186,7 +185,7 @@ class Truco
                 $this->rodadaAtual = [];
                 return $this;
             } elseif ($empate < 2) {
-                $this->jogadores[$cartaMaior['jogadorkey']]['pontos']++;
+                $this->jogadores[$cartaMaior['jogadorkey']]->pontos++;
                 $this->rodadasAnteriores[] = $this->rodadaAtual;
             }
 
@@ -194,6 +193,5 @@ class Truco
             $this->rodadaAtual = [];
             return $this;
         }
-        return $this;
     }
 }

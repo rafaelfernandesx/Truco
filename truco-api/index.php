@@ -2,32 +2,16 @@
 
 // $carcas ♦♠♥♣
 require_once './classTruco.php';
+require_once './jogador.php';
 
+    /**
+     * @var array<int, Jogador>
+     */
 $jogadores = [
-    [
-        'key' => 0,
-        'nome' => 'jogador 1',
-        'cartas' => [],
-        'pontos' => 0,
-    ],
-    [
-        'key' => 1,
-        'nome' => 'jogador 2',
-        'cartas' => [],
-        'pontos' => 0,
-    ],
-    [
-        'key' => 2,
-        'nome' => 'jogador 3',
-        'cartas' => [],
-        'pontos' => 0,
-    ],
-    [
-        'key' => 3,
-        'nome' => 'jogador 4',
-        'cartas' => [],
-        'pontos' => 0,
-    ]
+    new Jogador(0, 'Jogador 1'),
+    new Jogador(1, 'Jogador 2'),
+    new Jogador(2, 'Jogador 3'),
+    new Jogador(3, 'Jogador 4'),
 ];
 
 $classTruco = new Truco($jogadores);
